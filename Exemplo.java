@@ -16,6 +16,7 @@ public class Exemplo {
         float n3 = teclado.nextFloat();
 
         System.out.println("Nome:");
+        teclado.nextLine();
         String nome = teclado.nextLine();
 
         float media = (n1 + n2 + n3) / 3;
