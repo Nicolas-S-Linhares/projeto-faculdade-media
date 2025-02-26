@@ -24,5 +24,6 @@ public class Exemplo {
         System.out.println(nome);
         System.out.println(media);
         
+        teclado.close();
     }
 }
