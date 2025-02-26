@@ -1,106 +1,133 @@
+import java.util.Random;
 import java.util.Scanner;
 
-public class JogoDaVelha {
+class JogoDaVelha {
+    public static void main(String[] args) {
+        Scanner teclado = new Scanner(System.in);
+        JogoDaVelha_Mapa mapa = new JogoDaVelha_Mapa();
+        JogoDaVelha_Jogador jogador = new JogoDaVelha_Jogador(teclado);
+        JogoDaVelha_PC pc = new JogoDaVelha_PC();
+        
+        boolean jogarNovamente;
+        do {
+            mapa.limparMapa();
+            boolean vezDoJogador = mapa.sortearInicio();
+            int jogadas = 0;
+            boolean jogoEmAndamento = true;
+            
+            while (jogoEmAndamento) {
+                mapa.desenharMapa(jogadas);
+                
+                if (vezDoJogador) {
+                    jogador.jogar(mapa);
+                    if (mapa.verificarVitoria('X')) {
+                        System.out.println("... Jogador GANHOU!");
+                        jogoEmAndamento = false;
+                    }
+                } else {
+                    pc.jogar(mapa);
+                    if (mapa.verificarVitoria('O')) {
+                        System.out.println("... PC GANHOU!");
+                        jogoEmAndamento = false;
+                    }
+                }
+                
+                jogadas++;
+                if (jogoEmAndamento && jogadas == 9) {
+                    mapa.desenharMapa(jogadas);
+                    System.out.println("... EMPATOU!");
+                    jogoEmAndamento = false;
+                }
+                
+                vezDoJogador = !vezDoJogador;
+            }
+            
+            System.out.print("Deseja jogar novamente (s/n)? ");
+            jogarNovamente = teclado.next().equalsIgnoreCase("s");
+            
+        } while (jogarNovamente);
+        teclado.close();
+    }
+}
 
-    // Função para imprimir o tabuleiro
-    public static void imprimirTabuleiro(char[][] tabuleiro) {
+class JogoDaVelha_Mapa {
+    private char[][] mapa = new char[3][3];
+    private Random random = new Random();
+    
+    public void limparMapa() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                System.out.print(tabuleiro[i][j]);
-                if (j < 2) System.out.print(" | ");
+                mapa[i][j] = ' ';
             }
-            System.out.println();
-            if (i < 2) System.out.println("---------");
         }
     }
-
-    // Função para verificar se algum jogador ganhou
-    public static boolean verificarVitoria(char[][] tabuleiro, char jogador) {
-        // Verifica as linhas, colunas e diagonais
+    
+    public boolean sortearInicio() {
+        return random.nextBoolean();
+    }
+    
+    public void desenharMapa(int jogada) {
+        System.out.println("------------- .. jogada: " + jogada);
         for (int i = 0; i < 3; i++) {
-            // Verifica as linhas
-            if (tabuleiro[i][0] == jogador && tabuleiro[i][1] == jogador && tabuleiro[i][2] == jogador) {
-                return true;
+            for (int j = 0; j < 3; j++) {
+                System.out.print(" " + mapa[i][j] + " ");
+                if (j < 2) System.out.print("|");
             }
-            // Verifica as colunas
-            if (tabuleiro[0][i] == jogador && tabuleiro[1][i] == jogador && tabuleiro[2][i] == jogador) {
-                return true;
-            }
+            System.out.println("\n-------------");
         }
-        // Verifica as diagonais
-        if (tabuleiro[0][0] == jogador && tabuleiro[1][1] == jogador && tabuleiro[2][2] == jogador) {
-            return true;
+    }
+    
+    public boolean verificarVitoria(char jogador) {
+        for (int i = 0; i < 3; i++) {
+            if (mapa[i][0] == jogador && mapa[i][1] == jogador && mapa[i][2] == jogador) return true;
+            if (mapa[0][i] == jogador && mapa[1][i] == jogador && mapa[2][i] == jogador) return true;
         }
-        if (tabuleiro[0][2] == jogador && tabuleiro[1][1] == jogador && tabuleiro[2][0] == jogador) {
-            return true;
-        }
-
+        if (mapa[0][0] == jogador && mapa[1][1] == jogador && mapa[2][2] == jogador) return true;
+        if (mapa[0][2] == jogador && mapa[1][1] == jogador && mapa[2][0] == jogador) return true;
         return false;
     }
-
-    // Função para verificar se o tabuleiro está cheio
-    public static boolean tabuleiroCheio(char[][] tabuleiro) {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (tabuleiro[i][j] == ' ') {
-                    return false;
-                }
-            }
+    
+    public boolean marcarJogada(int linha, int coluna, char jogador) {
+        if (linha >= 0 && linha < 3 && coluna >= 0 && coluna < 3 && mapa[linha][coluna] == ' ') {
+            mapa[linha][coluna] = jogador;
+            return true;
         }
-        return true;
+        return false;
     }
+}
 
-    public static void main(String[] args) {
-        char[][] tabuleiro = new char[3][3];
-        Scanner scanner = new Scanner(System.in);
-        boolean jogoEmAndamento = true;
-        char jogadorAtual = 'X';
+class JogoDaVelha_Jogador {
+    private Scanner teclado;
+    
+    public JogoDaVelha_Jogador(Scanner teclado) {
+        this.teclado = teclado;
+    }
+    
+    public void jogar(JogoDaVelha_Mapa mapa) {
+        int linha, coluna;
+        boolean jogadaValida;
+        do {
+            System.out.println("Jogador ..\n  linha: ");
+            linha = teclado.nextInt() - 1;
+            System.out.println("  coluna: ");
+            coluna = teclado.nextInt() - 1;
+            jogadaValida = mapa.marcarJogada(linha, coluna, 'X');
+            if (!jogadaValida) System.out.println("Posição inválida! Tente novamente.");
+        } while (!jogadaValida);
+    }
+}
 
-        // Inicializando o tabuleiro com espaços vazios
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                tabuleiro[i][j] = ' ';
-            }
-        }
-
-        while (jogoEmAndamento) {
-            imprimirTabuleiro(tabuleiro);
-            System.out.println("Jogador " + jogadorAtual + ", escolha a linha e a coluna (1-3 para ambos):");
-            System.out.print("Linha (1-3): ");
-            int linha = scanner.nextInt() - 1;  // Subtrai 1 para indexar corretamente
-            System.out.print("Coluna (1-3): ");
-            int coluna = scanner.nextInt() - 1;  // Subtrai 1 para indexar corretamente
-
-            // Verifica se a posição está dentro dos limites
-            if (linha < 0 || linha > 2 || coluna < 0 || coluna > 2) {
-                System.out.println("Posição inválida! Escolha valores entre 1 e 3 para linha e coluna.");
-                continue;
-            }
-
-            // Verifica se a posição está ocupada
-            if (tabuleiro[linha][coluna] != ' ') {
-                System.out.println("Posição já ocupada, tente novamente.");
-                continue;
-            }
-
-            // Marca a posição escolhida pelo jogador
-            tabuleiro[linha][coluna] = jogadorAtual;
-
-            // Verifica se o jogador ganhou
-            if (verificarVitoria(tabuleiro, jogadorAtual)) {
-                imprimirTabuleiro(tabuleiro);
-                System.out.println("Jogador " + jogadorAtual + " venceu!");
-                jogoEmAndamento = false;
-            } else if (tabuleiroCheio(tabuleiro)) {
-                imprimirTabuleiro(tabuleiro);
-                System.out.println("Empate!");
-                jogoEmAndamento = false;
-            } else {
-                // Alterna o jogador
-                jogadorAtual = (jogadorAtual == 'X') ? 'O' : 'X';
-            }
-        }
-
-        scanner.close();
+class JogoDaVelha_PC {
+    private Random random = new Random();
+    
+    public void jogar(JogoDaVelha_Mapa mapa) {
+        int linha, coluna;
+        boolean jogadaValida;
+        do {
+            linha = random.nextInt(3);
+            coluna = random.nextInt(3);
+            jogadaValida = mapa.marcarJogada(linha, coluna, 'O');
+        } while (!jogadaValida);
+        System.out.println("PC[" + linha + "," + coluna + "]");
     }
 }
