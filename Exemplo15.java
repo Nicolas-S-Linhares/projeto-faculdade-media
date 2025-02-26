@@ -10,7 +10,8 @@ public class Exemplo15 {
         Scanner teclado = new Scanner(System.in);
 
         System.out.println("valor:");
-        double valor = teclado.nextInt();
+        double valor = teclado.nextDouble();
+        valor = valor * 100;
 
         double notas100 = valor / 100;
         valor = valor % 100;
@@ -42,8 +43,8 @@ public class Exemplo15 {
         double moeda10 = valor / 0.10;
         valor = valor % 0.10;
 
-        double moeda5 = valor / 0.5;
-        valor = valor % 0.5;
+        double moeda5 = valor / 0.05;
+        valor = valor % 0.05;
 
         System.out.println("Notas de R$100:" + notas100);
         System.out.println("Notas de R$50:" + notas50);
